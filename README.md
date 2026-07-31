@@ -19,10 +19,11 @@
 ## Переменные окружения
 
 Создайте .env.local:
-
+```
 GIGACHAT_CLIENT_ID=ваш-client-id
 GIGACHAT_CLIENT_SECRET=ваш-client-secret
 MAX_ROWS_FOR_AI=30
+```
 
 ## Запуск
 

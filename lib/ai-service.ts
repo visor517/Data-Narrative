@@ -95,6 +95,6 @@ export async function getInsights(data: ParsedData): Promise<InsightsResponse> {
             .join("; ");
         throw new Error(`Ответ AI не прошёл валидацию: ${issues}`);
     }
-    console.log("[AI Service] Parsed response:", JSON.stringify(result.data, null, 2));
+    // console.log("[AI Service] Parsed response:", JSON.stringify(result.data, null, 2));
     return result.data;
 }

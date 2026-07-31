@@ -129,23 +129,30 @@ export default function Home() {
               </div>
             )}
 
-            {!aiLoading && narrative && (
-              <div className="animate-fade-in-up delay-100">
-                <NarrativeWidget narrative={narrative} />
-              </div>
-            )}
-
-            {!aiLoading && charts && charts.length > 0 && (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {charts.map((chart, i) => (
-                  <div
-                    key={i}
-                    className="glass-card animate-fade-in-up rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-4 shadow-[var(--glass-shadow)] backdrop-blur-[var(--glass-blur)]"
-                    style={{ animationDelay: `${(i + 1) * 0.1}s` }}
-                  >
-                    <ChartWidget config={chart} />
+            {!aiLoading && (narrative || (charts && charts.length > 0)) && (
+              <div className="space-y-6">
+                {narrative && (
+                  <div className="animate-fade-in-up">
+                    <NarrativeWidget narrative={narrative} />
                   </div>
-                ))}
+                )}
+
+                {charts && charts.length > 0 && (
+                  <div
+                    className="grid gap-4"
+                    style={{ gridTemplateColumns: `repeat(${charts.length}, minmax(0, 1fr))` }}
+                  >
+                    {charts.map((chart, i) => (
+                      <div
+                        key={i}
+                        className="glass-card animate-fade-in-up rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-4 shadow-[var(--glass-shadow)] backdrop-blur-[var(--glass-blur)]"
+                        style={{ animationDelay: `${(i + 1) * 0.1}s` }}
+                      >
+                        <ChartWidget config={chart} />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -154,3 +161,4 @@ export default function Home() {
     </main>
   );
 }
+

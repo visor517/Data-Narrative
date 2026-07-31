@@ -1,19 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 interface NarrativeWidgetProps {
     narrative: string;
 }
 
 export function NarrativeWidget({ narrative }: NarrativeWidgetProps) {
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-6 shadow-[var(--glass-shadow)] backdrop-blur-[var(--glass-blur)] transition-all duration-300 hover:shadow-lg"
-        >
+        <div className="rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-6 shadow-[var(--glass-shadow)] backdrop-blur-[var(--glass-blur)] transition-all duration-300 hover:shadow-lg">
             <div className="flex items-center gap-2 mb-4">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--text-muted)]/10">
                     <svg
@@ -38,6 +31,6 @@ export function NarrativeWidget({ narrative }: NarrativeWidgetProps) {
             <p className="text-base leading-relaxed text-[var(--text-primary)] sm:text-lg sm:leading-8">
                 {narrative}
             </p>
-        </motion.div>
+        </div>
     );
 }
