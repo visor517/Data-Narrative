@@ -19,6 +19,7 @@ export default function Home() {
   const [error, setError] = useState<AppError | null>(null);
   const [narrative, setNarrative] = useState<string | null>(null);
   const [charts, setCharts] = useState<ChartConfig[] | null>(null);
+  const [loadingStatus, setLoadingStatus] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
@@ -61,6 +62,7 @@ export default function Home() {
       setAppState("error");
     } finally {
       setAiLoading(false);
+      setLoadingStatus(null);
     }
   }, []);
 
@@ -118,8 +120,9 @@ export default function Home() {
     setAppState("error");
   }, []);
 
-  const handleLoading = useCallback((loading: boolean) => {
-    setAppState(loading ? "loading" : "idle");
+  const handleLoading = useCallback((status: string | null) => {
+    setLoadingStatus(status);
+    setAppState(status ? "loading" : "idle");
   }, []);
 
   const handleReset = useCallback(() => {
@@ -128,6 +131,7 @@ export default function Home() {
     setNarrative(null);
     setCharts(null);
     setChatMessages([]);
+    setLoadingStatus(null);
     setAppState("idle");
   }, []);
 
@@ -149,6 +153,9 @@ export default function Home() {
 
         {appState === "loading" && (
           <div className="py-12">
+            {loadingStatus && (
+              <p className="mb-4 text-center text-sm text-[var(--text-muted)]">{loadingStatus}</p>
+            )}
             <DashboardSkeleton />
           </div>
         )}
@@ -179,6 +186,9 @@ export default function Home() {
             {/* AI-аналитика */}
             {aiLoading && (
               <div className="py-12">
+                {loadingStatus && (
+                  <p className="mb-4 text-center text-sm text-[var(--text-muted)]">{loadingStatus}</p>
+                )}
                 <DashboardSkeleton />
               </div>
             )}

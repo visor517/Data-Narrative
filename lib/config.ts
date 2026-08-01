@@ -14,7 +14,7 @@
 // ===== File upload limits =====
 
 /** Максимальный размер загружаемого файла в мегабайтах */
-export const MAX_FILE_SIZE_MB = Number(process.env.MAX_FILE_SIZE_MB) || 20;
+export const MAX_FILE_SIZE_MB = Number(process.env.MAX_FILE_SIZE_MB) || 5;
 
 /** Максимальное количество строк для парсинга из файла */
 export const MAX_ROWS_PARSE = Number(process.env.MAX_ROWS_PARSE) || 1000;
@@ -25,7 +25,7 @@ export const MAX_ROWS_PREVIEW = Number(process.env.MAX_ROWS_PREVIEW) || 5;
 // ===== AI limits =====
 
 /** Максимальное количество строк, отправляемых в промпт AI */
-export const MAX_ROWS_FOR_AI = Number(process.env.MAX_ROWS_FOR_AI) || 500;
+export const MAX_ROWS_FOR_AI = Number(process.env.MAX_ROWS_FOR_AI) || 1000;
 
 /** Максимальное количество токенов в ответе AI */
 export const MAX_TOKENS = Number(process.env.MAX_TOKENS) || 2000;

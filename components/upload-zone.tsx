@@ -11,7 +11,7 @@ import type { AppError } from "@/lib/types";
 interface UploadZoneProps {
     onDataParsed: (data: ParsedData) => void;
     onError: (error: AppError) => void;
-    onLoading: (loading: boolean) => void;
+    onLoading: (status: string | null) => void;
 }
 
 export function UploadZone({ onDataParsed, onError, onLoading }: UploadZoneProps) {
@@ -35,17 +35,19 @@ export function UploadZone({ onDataParsed, onError, onLoading }: UploadZoneProps
             }
 
             setIsParsing(true);
-            onLoading(true);
+            onLoading("Подготовка...");
 
             try {
-                const data = await parseFile(file);
+                const data = await parseFile(file, onLoading);
                 console.log("[UploadZone] Данные распаршены:", data.rowCount, "строк");
                 setIsParsing(false);
+                onLoading("Анализируем данные через AI...");
                 onDataParsed(data);
             } catch (err) {
                 const message = err instanceof Error ? err.message : "Неизвестная ошибка";
                 console.error("[UploadZone] Ошибка:", message);
                 setIsParsing(false);
+                onLoading(null);
                 onError({
                     title: "Ошибка обработки файла",
                     message,
@@ -128,7 +130,9 @@ export function UploadZone({ onDataParsed, onError, onLoading }: UploadZoneProps
                 {isParsing ? (
                     <div className="flex flex-col items-center gap-4">
                         <Loader2 className="h-12 w-12 animate-spin text-[var(--accent-blue)]" />
-                        <p className="text-lg font-medium text-[var(--text-primary)]">Обрабатываем файл...</p>
+                        <p className="text-lg font-medium text-[var(--text-primary)]">
+                            Обрабатываем файл...
+                        </p>
                     </div>
                 ) : (
                     <>
