@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { callChat } from "./gigachat-api";
-import type { ParsedData, InsightsResponse } from "./types";
+import { callChat } from "@/lib/llm/gigachat";
+import type { ParsedData } from "@/lib/parser";
+import type { InsightsResponse } from "./types";
 
 // ===== Zod schema for validation =====
 

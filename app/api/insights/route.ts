@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getInsights } from "@/lib/ai-service";
-import type { ParsedData, InsightsResponse, ErrorResponse } from "@/lib/types";
+import { getInsights } from "@/lib/insight/insight-service";
+import type { ParsedData } from "@/lib/parser";
+import type { InsightsResponse } from "@/lib/insight/types";
+import type { ErrorResponse } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
     let body: unknown;

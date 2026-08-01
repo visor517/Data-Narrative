@@ -1,5 +1,15 @@
 import * as XLSX from "xlsx";
-import type { ParsedData } from "./types";
+
+// ===== Data types =====
+
+export interface ParsedData {
+    headers: string[];
+    rows: Record<string, string | number>[];
+    fileName: string;
+    rowCount: number;
+}
+
+// ===== Parser =====
 
 const MAX_ROWS = 150;
 

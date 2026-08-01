@@ -5,9 +5,13 @@ import { UploadZone } from "@/components/upload-zone";
 import { DataPreview } from "@/components/data-preview";
 import { NarrativeWidget } from "@/components/narrative-widget";
 import ChartWidget from "@/components/chart-widget";
+import { ChatPanel } from "@/components/chat-panel";
 import { ErrorState } from "@/components/ui/error-state";
 import { DashboardSkeleton } from "@/components/ui/skeleton";
-import type { ParsedData, AppState, AppError, ChartConfig } from "@/lib/types";
+import type { ParsedData } from "@/lib/parser";
+import type { ChartConfig } from "@/lib/insight/types";
+import type { AppState, AppError } from "@/lib/types";
+import type { ChatMessage } from "@/lib/chat/types";
 
 export default function Home() {
   const [appState, setAppState] = useState<AppState>("idle");
@@ -16,6 +20,8 @@ export default function Home() {
   const [narrative, setNarrative] = useState<string | null>(null);
   const [charts, setCharts] = useState<ChartConfig[] | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatLoading, setChatLoading] = useState(false);
 
   const handleDataParsed = useCallback(async (data: ParsedData) => {
     setParsedData(data);
@@ -23,6 +29,7 @@ export default function Home() {
     setAppState("dashboard");
     setNarrative(null);
     setCharts(null);
+    setChatMessages([]);
 
     // Отправляем данные в AI-сервис
     setAiLoading(true);
@@ -57,11 +64,57 @@ export default function Home() {
     }
   }, []);
 
+  const handleChatSend = useCallback(async (message: string) => {
+    if (!parsedData) return;
+
+    const userMessage: ChatMessage = { role: "user", content: message };
+    const updatedMessages = [...chatMessages, userMessage];
+
+    setChatMessages(updatedMessages);
+    setChatLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: updatedMessages,
+          data: {
+            headers: parsedData.headers,
+            rows: parsedData.rows,
+          },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.error === "chat_failed") {
+        setChatMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: "Не удалось получить ответ. Попробуйте ещё раз." },
+        ]);
+      } else {
+        setChatMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: result.answer },
+        ]);
+      }
+    } catch {
+      setChatMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Не удалось получить ответ. Попробуйте ещё раз." },
+      ]);
+    } finally {
+      setChatLoading(false);
+    }
+  }, [parsedData, chatMessages]);
+
   const handleError = useCallback((err: AppError) => {
     setError(err);
     setParsedData(null);
     setNarrative(null);
     setCharts(null);
+    setChatMessages([]);
     setAppState("error");
   }, []);
 
@@ -74,6 +127,7 @@ export default function Home() {
     setError(null);
     setNarrative(null);
     setCharts(null);
+    setChatMessages([]);
     setAppState("idle");
   }, []);
 
@@ -155,10 +209,20 @@ export default function Home() {
                 )}
               </div>
             )}
+
+            {/* Чат с данными */}
+            {!aiLoading && (
+              <div className="animate-fade-in-up">
+                <ChatPanel
+                  messages={chatMessages}
+                  onSend={handleChatSend}
+                  loading={chatLoading}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
     </main>
   );
 }
-

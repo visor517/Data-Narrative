@@ -4,7 +4,8 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Upload, FileText, FileSpreadsheet, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { parseFile } from "@/lib/parser";
-import type { ParsedData, AppError } from "@/lib/types";
+import type { ParsedData } from "@/lib/parser";
+import type { AppError } from "@/lib/types";
 
 interface UploadZoneProps {
     onDataParsed: (data: ParsedData) => void;

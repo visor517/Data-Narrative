@@ -1,7 +1,7 @@
 "use client";
 
 import { Table, FileSpreadsheet } from "lucide-react";
-import type { ParsedData } from "@/lib/types";
+import type { ParsedData } from "@/lib/parser";
 
 interface DataPreviewProps {
     data: ParsedData;
