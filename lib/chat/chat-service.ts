@@ -1,10 +1,10 @@
 import { callChat } from "@/lib/llm/gigachat";
+import { MAX_ROWS_FOR_AI } from "@/lib/config";
 
 // ===== Prompt building =====
 
 function buildSystemPrompt(headers: string[], rows: Record<string, string | number>[]): string {
-    const maxRows = Number(process.env.MAX_ROWS_FOR_AI) || 30;
-    const sampleRows = rows.slice(0, maxRows);
+    const sampleRows = rows.slice(0, MAX_ROWS_FOR_AI);
     const headerLine = headers.join(" | ");
 
     const rowsText = sampleRows

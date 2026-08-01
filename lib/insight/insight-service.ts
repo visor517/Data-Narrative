@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { callChat } from "@/lib/llm/gigachat";
+import { MAX_ROWS_FOR_AI } from "@/lib/config";
 import type { ParsedData } from "@/lib/parser";
 import type { InsightsResponse } from "./types";
 
@@ -21,8 +22,7 @@ const InsightsResponseSchema = z.object({
 // ===== Prompt building =====
 
 function buildPrompt(data: ParsedData): string {
-    const maxRows = Number(process.env.MAX_ROWS_FOR_AI) || 30;
-    const sampleRows = data.rows.slice(0, maxRows);
+    const sampleRows = data.rows.slice(0, MAX_ROWS_FOR_AI);
     const headerLine = data.headers.join(" | ");
 
     const rowsText = sampleRows

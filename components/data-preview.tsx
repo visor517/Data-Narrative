@@ -1,6 +1,7 @@
 "use client";
 
 import { Table, FileSpreadsheet } from "lucide-react";
+import { MAX_ROWS_PREVIEW } from "@/lib/config";
 import type { ParsedData } from "@/lib/parser";
 
 interface DataPreviewProps {
@@ -8,7 +9,7 @@ interface DataPreviewProps {
 }
 
 export function DataPreview({ data }: DataPreviewProps) {
-    const previewRows = data.rows.slice(0, 5);
+    const previewRows = data.rows.slice(0, MAX_ROWS_PREVIEW);
 
     return (
         <div className="rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-6 shadow-[var(--glass-shadow)] backdrop-blur-[var(--glass-blur)] transition-all duration-300 hover:shadow-lg">
@@ -62,9 +63,9 @@ export function DataPreview({ data }: DataPreviewProps) {
                 </table>
             </div>
 
-            {data.rowCount > 5 && (
+            {data.rowCount > MAX_ROWS_PREVIEW && (
                 <p className="mt-3 text-center text-xs text-[var(--text-muted)]">
-                    Показано 5 из {data.rowCount} строк
+                    Показано {MAX_ROWS_PREVIEW} из {data.rowCount} строк
                 </p>
             )}
         </div>

@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Upload, FileText, FileSpreadsheet, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { parseFile } from "@/lib/parser";
+import { MAX_FILE_SIZE_MB, MAX_ROWS_PARSE } from "@/lib/config";
 import type { ParsedData } from "@/lib/parser";
 import type { AppError } from "@/lib/types";
 
@@ -22,6 +23,17 @@ export function UploadZone({ onDataParsed, onError, onLoading }: UploadZoneProps
     const handleFile = useCallback(
         async (file: File) => {
             console.log("[UploadZone] Файл получен:", file.name, file.type, file.size);
+
+            // Проверка размера файла на клиенте
+            const maxBytes = MAX_FILE_SIZE_MB * 1024 * 1024;
+            if (file.size > maxBytes) {
+                onError({
+                    title: "Файл слишком большой",
+                    message: `Максимальный размер файла: ${MAX_FILE_SIZE_MB} МБ.`,
+                });
+                return;
+            }
+
             setIsParsing(true);
             onLoading(true);
 
@@ -154,7 +166,7 @@ export function UploadZone({ onDataParsed, onError, onLoading }: UploadZoneProps
             </div>
 
             <p className="mt-4 text-xs text-[var(--text-muted)]">
-                До 150 строк • Первая строка — заголовки
+                До {MAX_ROWS_PARSE} строк • Первая строка — заголовки • макс. {MAX_FILE_SIZE_MB} МБ
             </p>
         </div>
     );

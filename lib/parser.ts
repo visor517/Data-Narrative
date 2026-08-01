@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import { MAX_ROWS_PARSE } from "@/lib/config";
 
 // ===== Data types =====
 
@@ -10,8 +11,6 @@ export interface ParsedData {
 }
 
 // ===== Parser =====
-
-const MAX_ROWS = 150;
 
 export function parseFile(file: File): Promise<ParsedData> {
     return new Promise((resolve, reject) => {
@@ -43,7 +42,7 @@ export function parseFile(file: File): Promise<ParsedData> {
                     }
 
                     const headers = Object.keys(json[0]);
-                    const rows = json.slice(0, MAX_ROWS);
+                    const rows = json.slice(0, MAX_ROWS_PARSE);
 
                     resolve({ headers, rows, fileName: file.name, rowCount: json.length });
                 } catch (err) {
@@ -79,7 +78,7 @@ export function parseFile(file: File): Promise<ParsedData> {
                     }
 
                     const headers = Object.keys(json[0]);
-                    const rows = json.slice(0, MAX_ROWS);
+                    const rows = json.slice(0, MAX_ROWS_PARSE);
 
                     resolve({ headers, rows, fileName: file.name, rowCount: json.length });
                 } catch (err) {
@@ -135,7 +134,7 @@ function parseText(text: string, fileName: string): ParsedData {
     }
 
     const headers = lines[0].split(separator).map((h) => h.trim());
-    const dataLines = lines.slice(1, MAX_ROWS + 1);
+    const dataLines = lines.slice(1, MAX_ROWS_PARSE + 1);
 
     const rows = dataLines.map((line) => {
         const values = line.split(separator).map((v) => v.trim());

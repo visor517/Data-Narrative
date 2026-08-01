@@ -6,6 +6,8 @@
 //
 // Токен живёт 30 минут, кешируем в памяти.
 
+import { MAX_TOKENS } from "@/lib/config";
+
 interface GigaChatAuthResponse {
     access_token: string;
     expires_at: number;
@@ -136,7 +138,7 @@ export async function callChat(systemPrompt: string, userPrompt: string): Promis
             { role: "user", content: userPrompt },
         ],
         temperature: 0.3,
-        max_tokens: 2000,
+        max_tokens: MAX_TOKENS,
         stream: false,
     };
 
