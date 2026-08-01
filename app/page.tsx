@@ -9,9 +9,8 @@ import { ChatPanel } from "@/components/chat-panel";
 import { ErrorState } from "@/components/ui/error-state";
 import { DashboardSkeleton } from "@/components/ui/skeleton";
 import type { ParsedData } from "@/lib/parser";
-import type { ChartConfig } from "@/lib/insight/types";
-import type { AppState, AppError } from "@/lib/types";
-import type { ChatMessage } from "@/lib/chat/types";
+import type { ChartConfig } from "@/lib/types";
+import type { AppState, AppError, ChatMessage } from "@/lib/types";
 
 export default function Home() {
   const [appState, setAppState] = useState<AppState>("idle");
@@ -85,6 +84,7 @@ export default function Home() {
             headers: parsedData.headers,
             rows: parsedData.rows,
           },
+          charts: charts,
         }),
       });
 

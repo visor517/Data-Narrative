@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getChatAnswer } from "@/lib/chat/chat-service";
-import type { ErrorResponse } from "@/lib/types";
+import { getChatAnswer } from "@/lib/chat-service";
+import type { ErrorResponse, ChartConfig } from "@/lib/types";
 
 interface ChatRequestBody {
     messages: { role: "user" | "assistant"; content: string }[];
@@ -8,6 +8,7 @@ interface ChatRequestBody {
         headers: string[];
         rows: Record<string, string | number>[];
     };
+    charts?: ChartConfig[];
 }
 
 export async function POST(request: NextRequest) {
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const { messages, data } = (body || {}) as Partial<ChatRequestBody>;
+    const { messages, data, charts } = (body || {}) as Partial<ChatRequestBody>;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
         return NextResponse.json<ErrorResponse>(
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const answer = await getChatAnswer(messages, data.headers, data.rows);
+        const answer = await getChatAnswer(messages, data.headers, data.rows, charts);
 
         return NextResponse.json({ answer }, { status: 200 });
     } catch (err) {

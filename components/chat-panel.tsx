@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import type { ChatMessage } from "@/lib/chat/types";
+import type { ChatMessage } from "@/lib/types";
 
 interface ChatPanelProps {
     messages: ChatMessage[];

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getInsights } from "@/lib/insight/insight-service";
+import { getInsights } from "@/lib/insight-service";
 import type { ParsedData } from "@/lib/parser";
-import type { InsightsResponse } from "@/lib/insight/types";
+import type { InsightsResponse } from "@/lib/insight-service";
 import type { ErrorResponse } from "@/lib/types";
 
 export async function POST(request: NextRequest) {

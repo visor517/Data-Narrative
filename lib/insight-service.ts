@@ -2,7 +2,12 @@ import { z } from "zod";
 import { callChat } from "@/lib/llm/gigachat";
 import { MAX_ROWS_FOR_AI } from "@/lib/config";
 import type { ParsedData } from "@/lib/parser";
-import type { InsightsResponse } from "./types";
+import type { ChartConfig } from "@/lib/types";
+
+export interface InsightsResponse {
+    narrative: string;
+    charts: ChartConfig[];
+}
 
 // ===== Zod schema for validation =====
 

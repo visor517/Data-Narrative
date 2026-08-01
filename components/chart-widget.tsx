@@ -15,7 +15,7 @@ import {
     ResponsiveContainer,
     Cell,
 } from "recharts";
-import type { ChartConfig } from "@/lib/insight/types";
+import type { ChartConfig } from "@/lib/types";
 
 // Мягкая, насыщенная палитра — без кислотных и неоновых цветов
 const COLORS = [
