@@ -1,6 +1,8 @@
 # Data Narrative
 
 Загрузите CSV, Excel или текст — получите AI-аналитику с графиками.
+https://data-narrative.vercel.app/
+
 
 ## Возможности
 
@@ -22,7 +24,7 @@
 ```
 GIGACHAT_CLIENT_ID=ваш-client-id
 GIGACHAT_CLIENT_SECRET=ваш-client-secret
-MAX_ROWS_FOR_AI=30
+NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
 
 ## Запуск
@@ -31,7 +33,3 @@ npm install
 npm run dev
 
 Открыть http://localhost:3000
-
-## Деплой
-
-Проект готов к деплою на Vercel одной командой. Добавьте переменные окружения в настройках проекта.
