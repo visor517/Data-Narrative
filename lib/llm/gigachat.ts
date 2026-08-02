@@ -79,7 +79,7 @@ function getScope(): string {
 }
 
 function getModel(): string {
-    return process.env.GIGACHAT_MODEL || "GigaChat-2";
+    return process.env.GIGACHAT_MODEL || "GigaChat-2-Pro";
 }
 
 // ===== Token management =====
