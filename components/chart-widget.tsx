@@ -84,7 +84,7 @@ function PieChartWidget({ config }: { config: ChartConfig }) {
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2 text-center">
                 {config.title}
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={300} style={{ overflow: "visible" }}>
                 <PieChart>
                     <Pie
                         data={config.data}
@@ -92,8 +92,8 @@ function PieChartWidget({ config }: { config: ChartConfig }) {
                         nameKey={config.xKey}
                         cx="50%"
                         cy="50%"
-                        outerRadius={100}
-                        label={({ name, value }) => `${name} (${value})`}
+                        outerRadius={80}
+                        label={({ value }) => value}
                         labelLine={{ stroke: "var(--text-muted)", strokeOpacity: 0.5 }}
                     >
                         {config.data.map((_, idx) => (
