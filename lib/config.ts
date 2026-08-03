@@ -5,22 +5,30 @@
 // Чтобы изменить константы на клиенте, нужно править файл lib/config.ts напрямую.
 //
 // .env reference (только для серверных модулей):
-//   MAX_FILE_SIZE_MB=20       — макс. размер загружаемого файла в МБ
-//   MAX_ROWS_PARSE=1000       — макс. строк для парсинга из файла
-//   MAX_ROWS_PREVIEW=5        — макс. строк для отображения в таблице предпросмотра
-//   MAX_ROWS_FOR_AI=500       — макс. строк, отправляемых в AI
-//   MAX_TOKENS=2000           — макс. токенов в ответе AI
+//   MAX_FILE_SIZE_MB=5         — макс. размер загружаемого файла в МБ
+//   MAX_PREVIEW_LINES=7        — макс. строк для предпросмотра (включая заголовок)
+//   MAX_PREVIEW_CHARS=500      — макс. символов для предпросмотра текста
+//   MAX_TEXT_INPUT_CHARS=10000 — макс. символов для ручного ввода
+//   MAX_ROWS_FOR_AI=1000       — макс. строк, отправляемых в AI
+//   MAX_TOKENS=2000            — макс. токенов в ответе AI
 
 // ===== File upload limits =====
 
 /** Максимальный размер загружаемого файла в мегабайтах */
 export const MAX_FILE_SIZE_MB = Number(process.env.MAX_FILE_SIZE_MB) || 5;
 
-/** Максимальное количество строк для парсинга из файла */
-export const MAX_ROWS_PARSE = Number(process.env.MAX_ROWS_PARSE) || 1000;
+// ===== Preview limits =====
 
-/** Максимальное количество строк для отображения в таблице предпросмотра */
-export const MAX_ROWS_PREVIEW = Number(process.env.MAX_ROWS_PREVIEW) || 5;
+/** Максимальное количество строк для предпросмотра (включая заголовок) */
+export const MAX_PREVIEW_LINES = Number(process.env.MAX_PREVIEW_LINES) || 7;
+
+/** Максимальное количество символов для предпросмотра текста */
+export const MAX_PREVIEW_CHARS = Number(process.env.MAX_PREVIEW_CHARS) || 500;
+
+// ===== Input limits =====
+
+/** Максимальное количество символов для ручного ввода текста */
+export const MAX_TEXT_INPUT_CHARS = Number(process.env.MAX_TEXT_INPUT_CHARS) || 10000;
 
 // ===== AI limits =====
 

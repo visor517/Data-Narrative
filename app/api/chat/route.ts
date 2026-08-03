@@ -5,8 +5,7 @@ import type { ErrorResponse, ChartConfig } from "@/lib/types";
 interface ChatRequestBody {
     messages: { role: "user" | "assistant"; content: string }[];
     data: {
-        headers: string[];
-        rows: Record<string, string | number>[];
+        rawText: string;
     };
     charts?: ChartConfig[];
 }
@@ -32,21 +31,15 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    if (
-        !data ||
-        !Array.isArray(data.headers) ||
-        data.headers.length === 0 ||
-        !Array.isArray(data.rows) ||
-        data.rows.length === 0
-    ) {
+    if (!data || !data.rawText || typeof data.rawText !== "string") {
         return NextResponse.json<ErrorResponse>(
-            { error: "chat_failed", message: "Отсутствуют или некорректны data (headers/rows)" },
+            { error: "chat_failed", message: "Отсутствуют или некорректны data.rawText" },
             { status: 200 }
         );
     }
 
     try {
-        const answer = await getChatAnswer(messages, data.headers, data.rows, charts);
+        const answer = await getChatAnswer(messages, data.rawText, charts);
 
         return NextResponse.json({ answer }, { status: 200 });
     } catch (err) {

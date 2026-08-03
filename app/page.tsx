@@ -8,8 +8,7 @@ import ChartWidget from "@/components/chart-widget";
 import { ChatPanel } from "@/components/chat-panel";
 import { ErrorState } from "@/components/ui/error-state";
 import { DashboardSkeleton } from "@/components/ui/skeleton";
-import type { ParsedData } from "@/lib/parser";
-import type { ChartConfig } from "@/lib/types";
+import type { ParsedData, ChartConfig } from "@/lib/types";
 import type { AppState, AppError, ChatMessage } from "@/lib/types";
 
 export default function Home() {
@@ -38,8 +37,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          headers: data.headers,
-          rows: data.rows,
+          rawText: data.rawText,
           fileName: data.fileName,
         }),
       });
@@ -81,8 +79,7 @@ export default function Home() {
         body: JSON.stringify({
           messages: updatedMessages,
           data: {
-            headers: parsedData.headers,
-            rows: parsedData.rows,
+            rawText: parsedData.rawText,
           },
           charts: charts,
         }),
@@ -109,7 +106,7 @@ export default function Home() {
     } finally {
       setChatLoading(false);
     }
-  }, [parsedData, chatMessages]);
+  }, [parsedData, chatMessages, charts]);
 
   const handleError = useCallback((err: AppError) => {
     setError(err);
@@ -203,8 +200,8 @@ export default function Home() {
 
                 {charts && charts.length > 0 && (
                   <div
-                    className="grid gap-4"
-                    style={{ gridTemplateColumns: `repeat(${charts.length}, minmax(0, 1fr))` }}
+                    className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                    style={{ gridTemplateColumns: `repeat(auto-fit, minmax(300px, 1fr))` }}
                   >
                     {charts.map((chart, i) => (
                       <div

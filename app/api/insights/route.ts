@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getInsights } from "@/lib/insight-service";
-import type { ParsedData } from "@/lib/parser";
+import type { ParsedData } from "@/lib/types";
 import type { InsightsResponse } from "@/lib/insight-service";
 import type { ErrorResponse } from "@/lib/types";
 
@@ -16,36 +16,21 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const { headers, rows } = (body || {}) as Partial<ParsedData>;
+    const { rawText, fileName } = (body || {}) as Partial<ParsedData>;
 
-    if (!headers || !Array.isArray(headers) || headers.length === 0) {
+    if (!rawText || typeof rawText !== "string" || rawText.trim().length === 0) {
         return NextResponse.json<ErrorResponse>(
-            { error: "invalid_data", message: "Отсутствуют или некорректны заголовки (headers)" },
+            { error: "invalid_data", message: "Отсутствуют или некорректны rawText" },
             { status: 400 }
         );
-    }
-
-    if (!rows || !Array.isArray(rows) || rows.length === 0) {
-        return NextResponse.json<ErrorResponse>(
-            { error: "invalid_data", message: "Отсутствуют или некорректны строки (rows)" },
-            { status: 400 }
-        );
-    }
-
-    for (let i = 0; i < rows.length; i++) {
-        if (typeof rows[i] !== "object" || rows[i] === null) {
-            return NextResponse.json<ErrorResponse>(
-                { error: "invalid_data", message: `Строка ${i + 1} должна быть объектом` },
-                { status: 400 }
-            );
-        }
     }
 
     const parsedData: ParsedData = {
-        headers,
-        rows: rows as Record<string, string | number>[],
+        rawText,
         fileName: (body as Record<string, unknown>)?.fileName as string || "unknown",
-        rowCount: rows.length,
+        charCount: rawText.length,
+        lineCount: rawText.split("\n").length,
+        source: "file",
     };
 
     try {
@@ -57,7 +42,6 @@ export async function POST(request: NextRequest) {
 
         console.error("[Insights API] AI service error:", message);
 
-        // 200, чтобы клиент мог красиво показать ошибку
         return NextResponse.json<ErrorResponse>(
             { error: "ai_failed", message },
             { status: 200 }

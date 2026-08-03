@@ -7,6 +7,25 @@ export interface AppError {
     message: string;
 }
 
+// ===== parsed data types =====
+
+export type DataSource = "file" | "text";
+
+export interface ParsedData {
+    /** Сырой текст данных — всегда уходит в AI */
+    rawText: string;
+    /** Имя файла или "Текстовый ввод" */
+    fileName: string;
+    /** Количество символов */
+    charCount: number;
+    /** Количество строк */
+    lineCount: number;
+    /** Источник */
+    source: DataSource;
+    /** Первые N строк для предпросмотра */
+    previewRows?: string[][];
+}
+
 // ===== error types =====
 
 export interface ErrorResponse {

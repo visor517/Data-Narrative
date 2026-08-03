@@ -1,20 +1,15 @@
 import * as XLSX from "xlsx";
-import { MAX_ROWS_PARSE } from "@/lib/config";
+import { MAX_PREVIEW_LINES, MAX_ROWS_FOR_AI } from "@/lib/config";
+import type { ParsedData } from "@/lib/types";
 
-// ===== Data types =====
-
-export interface ParsedData {
-    headers: string[];
-    rows: Record<string, string | number>[];
-    fileName: string;
-    rowCount: number;
-}
-
-/** Callback для уведомления о текущей стадии парсинга */
+/** Callback для уведомления о текущей стадии */
 export type StageCallback = (stage: string) => void;
 
-// ===== Parser =====
-
+/**
+ * Прочитать файл и вернуть ParsedData.
+ * - CSV/Excel: rawText = CSV-строка, previewRows = первые N строк (ячейки)
+ * - TXT/JSON: rawText = весь файл, previewRows не заполняется
+ */
 export function parseFile(file: File, onStage?: StageCallback): Promise<ParsedData> {
     return new Promise((resolve, reject) => {
         const ext = file.name.split(".").pop()?.toLowerCase();
@@ -26,8 +21,8 @@ export function parseFile(file: File, onStage?: StageCallback): Promise<ParsedDa
             reader.onload = (e) => {
                 try {
                     const text = e.target?.result as string;
-                    onStage?.("Парсим CSV...");
-                    // Используем XLSX.read с типом "string" — он сам определит разделители
+                    onStage?.("Обрабатываем...");
+
                     const workbook = XLSX.read(text, { type: "string" });
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
@@ -36,20 +31,30 @@ export function parseFile(file: File, onStage?: StageCallback): Promise<ParsedDa
                         return;
                     }
 
-                    const json = XLSX.utils.sheet_to_json<Record<string, string | number>>(sheet, {
+                    // Конвертируем в CSV-строку для rawText
+                    const csvString = XLSX.utils.sheet_to_csv(sheet);
+                    const csvLines = csvString.split("\n");
+                    const truncatedCsv = csvLines.slice(0, MAX_ROWS_FOR_AI).join("\n");
+
+                    // Парсим первые строки для превью
+                    const json = XLSX.utils.sheet_to_json<(string | number)[]>(sheet, {
+                        header: 1,
                         defval: "",
                         raw: false,
                     });
 
-                    if (json.length === 0) {
-                        reject(new Error("Файл не содержит данных"));
-                        return;
-                    }
+                    const previewRows = json
+                        .slice(0, MAX_PREVIEW_LINES)
+                        .map((row) => row.map(String));
 
-                    const headers = Object.keys(json[0]);
-                    const rows = json.slice(0, MAX_ROWS_PARSE);
-
-                    resolve({ headers, rows, fileName: file.name, rowCount: json.length });
+                    resolve({
+                        rawText: truncatedCsv,
+                        fileName: file.name,
+                        charCount: truncatedCsv.length,
+                        lineCount: csvLines.length,
+                        source: "file",
+                        previewRows,
+                    });
                 } catch (err) {
                     console.error("[Parser] CSV error:", err);
                     reject(new Error("Не удалось прочитать CSV-файл. Проверьте, что это корректный CSV."));
@@ -74,21 +79,32 @@ export function parseFile(file: File, onStage?: StageCallback): Promise<ParsedDa
                         return;
                     }
 
-                    onStage?.("Парсим строки...");
-                    const json = XLSX.utils.sheet_to_json<Record<string, string | number>>(sheet, {
+                    onStage?.("Конвертируем...");
+
+                    // CSV-строка для rawText
+                    const csvString = XLSX.utils.sheet_to_csv(sheet);
+                    const csvLines = csvString.split("\n");
+                    const truncatedCsv = csvLines.slice(0, MAX_ROWS_FOR_AI).join("\n");
+
+                    // Первые строки для превью
+                    const json = XLSX.utils.sheet_to_json<(string | number)[]>(sheet, {
+                        header: 1,
                         defval: "",
                         raw: false,
                     });
 
-                    if (json.length === 0) {
-                        reject(new Error("Файл не содержит данных"));
-                        return;
-                    }
+                    const previewRows = json
+                        .slice(0, MAX_PREVIEW_LINES)
+                        .map((row) => row.map(String));
 
-                    const headers = Object.keys(json[0]);
-                    const rows = json.slice(0, MAX_ROWS_PARSE);
-
-                    resolve({ headers, rows, fileName: file.name, rowCount: json.length });
+                    resolve({
+                        rawText: truncatedCsv,
+                        fileName: file.name,
+                        charCount: truncatedCsv.length,
+                        lineCount: csvLines.length,
+                        source: "file",
+                        previewRows,
+                    });
                 } catch (err) {
                     console.error("[Parser] XLSX error:", err);
                     reject(new Error("Не удалось прочитать Excel-файл. Проверьте, что это корректный .xlsx/.xls файл."));
@@ -103,12 +119,18 @@ export function parseFile(file: File, onStage?: StageCallback): Promise<ParsedDa
 
             reader.onload = (e) => {
                 try {
-                    onStage?.("Парсим строки...");
                     const text = e.target?.result as string;
-                    const result = parseText(text, file.name);
-                    resolve(result);
+                    const lines = text.split("\n");
+
+                    resolve({
+                        rawText: text,
+                        fileName: file.name,
+                        charCount: text.length,
+                        lineCount: lines.length,
+                        source: "file",
+                    });
                 } catch {
-                    reject(new Error("Не удалось распарсить текстовый файл."));
+                    reject(new Error("Не удалось прочитать текстовый файл."));
                 }
             };
 
@@ -117,47 +139,20 @@ export function parseFile(file: File, onStage?: StageCallback): Promise<ParsedDa
         } else {
             reject(new Error("Неподдерживаемый формат. Загрузите CSV, Excel (.xlsx/.xls), .txt или .json."));
         }
-
-        console.log("[Parser] File parsed:", file.name);
     });
 }
 
-function parseText(text: string, fileName: string): ParsedData {
-    const lines = text
-        .split("\n")
-        .map((l) => l.trim())
-        .filter((l) => l.length > 0);
+/**
+ * Создать ParsedData из сырого текста (режим "Текст").
+ */
+export function parseRawText(text: string): ParsedData {
+    const lines = text.split("\n");
 
-    if (lines.length === 0) {
-        throw new Error("Файл не содержит данных");
-    }
-
-    // Пробуем распарсить как TSV (табуляция) или пробелы
-    const separators = ["\t", ";", ","];
-    let separator = "\t";
-
-    for (const sep of separators) {
-        if (lines[0].includes(sep)) {
-            separator = sep;
-            break;
-        }
-    }
-
-    const headers = lines[0].split(separator).map((h) => h.trim());
-    const dataLines = lines.slice(1, MAX_ROWS_PARSE + 1);
-
-    const rows = dataLines.map((line) => {
-        const values = line.split(separator).map((v) => v.trim());
-        const row: Record<string, string | number> = {};
-
-        headers.forEach((header, i) => {
-            const val = values[i] ?? "";
-            const num = Number(val);
-            row[header] = isNaN(num) || val === "" ? val : num;
-        });
-
-        return row;
-    });
-
-    return { headers, rows, fileName, rowCount: lines.length - 1 };
+    return {
+        rawText: text,
+        fileName: "Текстовый ввод",
+        charCount: text.length,
+        lineCount: lines.length,
+        source: "text",
+    };
 }

@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { callChat } from "@/lib/llm/gigachat";
-import { MAX_ROWS_FOR_AI } from "@/lib/config";
-import type { ParsedData } from "@/lib/parser";
+import type { ParsedData } from "@/lib/types";
 import type { ChartConfig } from "@/lib/types";
 
 export interface InsightsResponse {
@@ -27,18 +26,10 @@ const InsightsResponseSchema = z.object({
 // ===== Prompt building =====
 
 function buildPrompt(data: ParsedData): string {
-    const sampleRows = data.rows.slice(0, MAX_ROWS_FOR_AI);
-    const headerLine = data.headers.join(" | ");
-
-    const rowsText = sampleRows.map((row) => data.headers.map((h) => String(row[h] ?? "")).join(" | ")).join("\n");
-
     return `Ты — аналитик данных.
 
-Вот заголовки таблицы:
-${headerLine}
-
-Вот первые ${sampleRows.length} строк данных:
-${rowsText}
+Вот загруженные данные:
+${data.rawText}
 
 Проанализируй данные и найди главную закономерность или аномалию.
 
@@ -126,6 +117,9 @@ export async function getInsights(data: ParsedData): Promise<InsightsResponse> {
     const userPrompt = buildPrompt(data);
     const systemPrompt = "Ты — аналитик данных. Отвечай только в формате JSON, без markdown.";
 
+    const promptSize = (systemPrompt.length + userPrompt.length).toLocaleString("ru");
+    console.log(`[AI Service] Запрос к модели. Размер промпта: ${promptSize} символов, строк: ${data.lineCount}, источник: ${data.source}`);
+
     let lastError: string | null = null;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -135,10 +129,12 @@ export async function getInsights(data: ParsedData): Promise<InsightsResponse> {
             await delay(waitMs);
         }
 
+        const startTime = Date.now();
         const raw = await callChat(systemPrompt, userPrompt);
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        console.log(`[AI Service] Ответ получен за ${elapsed}с, длина ответа: ${raw.length} символов`);
 
         // Пробуем распарсить JSON из ответа
-        // Иногда модель может обернуть JSON в markdown-код
         let parsed: unknown;
         try {
             const cleaned = raw

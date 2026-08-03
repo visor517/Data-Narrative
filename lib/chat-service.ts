@@ -5,16 +5,11 @@ import type { ChartConfig } from "@/lib/types";
 // ===== Prompt building =====
 
 function buildSystemPrompt(
-    headers: string[],
-    rows: Record<string, string | number>[],
+    rawText: string,
     charts?: ChartConfig[]
 ): string {
-    const sampleRows = rows.slice(0, MAX_ROWS_FOR_AI);
-    const headerLine = headers.join(" | ");
-
-    const rowsText = sampleRows
-        .map((row) => headers.map((h) => String(row[h] ?? "")).join(" | "))
-        .join("\n");
+    const lines = rawText.split("\n");
+    const truncated = lines.slice(0, MAX_ROWS_FOR_AI).join("\n");
 
     const chartsSection = charts && charts.length > 0
         ? `\n\nПо этим данным построены графики:\n${charts.map((c, i) => `  ${i + 1}. "${c.title}" (${c.type}) — ${c.xKey} / ${c.dataKeys.join(", ")}`).join("\n")}`
@@ -22,11 +17,8 @@ function buildSystemPrompt(
 
     return `Ты — AI-аналитик данных. Твоя единственная задача — отвечать на вопросы о загруженных данных и графиках.
 
-Вот заголовки таблицы:
-${headerLine}
-
-Вот первые ${sampleRows.length} строк данных:
-${rowsText}
+Вот загруженные данные:
+${truncated}
 
 ${chartsSection}
 
@@ -45,11 +37,10 @@ ${chartsSection}
 
 export async function getChatAnswer(
     messages: { role: "user" | "assistant"; content: string }[],
-    headers: string[],
-    rows: Record<string, string | number>[],
+    rawText: string,
     charts?: ChartConfig[]
 ): Promise<string> {
-    const systemPrompt = buildSystemPrompt(headers, rows, charts);
+    const systemPrompt = buildSystemPrompt(rawText, charts);
 
     // Берём последнее сообщение пользователя как основной запрос
     const lastUserMessage = messages.filter((m) => m.role === "user").pop()?.content || "";
